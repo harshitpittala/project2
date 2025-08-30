@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Results - ClauseWise</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 p-10">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">ClauseWise Results</h1>
+
+  <div class="grid grid-cols-2 gap-6">
+    {% for r in results %}
+    <div class="bg-white shadow-lg rounded-xl p-6">
+      <h2 class="text-xl font-semibold text-gray-700 mb-2">Clause {{ loop.index }}</h2>
+      <p><b>Original:</b> {{ r.original }}</p>
+      <p class="text-indigo-700 mt-2"><b>Simplified:</b> {{ r.simplified }}</p>
+      <p class="mt-2">
+        <b>Entities:</b>
+        {% for e in r.entities %}
+          <span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-lg text-sm">{{ e[0] }}</span>
+        {% endfor %}
+      </p>
+      <p class="mt-2"><b>Category:</b> 
+        <span class="bg-green-100 text-green-700 px-2 py-1 rounded-lg">{{ r.category }}</span>
+      </p>
+      <p class="mt-2"><b>Risk:</b>
+        {% if r.risk == "High" %}
+          <span class="bg-red-100 text-red-700 px-2 py-1 rounded-lg">High</span>
+        {% elif r.risk == "Medium" %}
+          <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-lg">Medium</span>
+        {% else %}
+          <span class="bg-green-100 text-green-700 px-2 py-1 rounded-lg">Low</span>
+        {% endif %}
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Dashboard -->
+  <div class="mt-12 grid grid-cols-2 gap-8">
+    <canvas id="riskChart"></canvas>
+    <canvas id="categoryChart"></canvas>
+  </div>
+
+  <script>
+    const riskData = {{ risk_counts | tojson }};
+    const categoryData = {{ category_counts | tojson }};
+    
+    new Chart(document.getElementById("riskChart"), {
+      type: "doughnut",
+      data: {
+        labels: Object.keys(riskData),
+        datasets: [{ data: Object.values(riskData) }]
+      }
+    });
+    new Chart(document.getElementById("categoryChart"), {
+      type: "bar",
+      data: {
+        labels: Object.keys(categoryData),
+        datasets: [{ data: Object.values(categoryData) }]
+      }
+    });
+  </script>
+</body>
+</html>
